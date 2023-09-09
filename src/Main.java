@@ -36,47 +36,11 @@ public class Main {
         calculate(currentDiffEntry, previousDiffEntry);
         System.out.println();System.out.println();System.out.println();
 
-//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
-//            previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
-//            currentDiffEntry))) {
-//            stringSetMap.get("operation").forEach(System.out::print);
-//            System.out.println("=" +
-//                stringSetMap.get("diff"));
-//            System.out.println("sameGroups=" +
-//                stringSetMap.get("same"));
-//        }
-//
-//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
-//            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
-//            currentDiffEntry))) {
-//            stringSetMap.get("operation").forEach(System.out::print);
-//            System.out.println("=" +
-//                stringSetMap.get("roles"));
-//        }
-
         System.out.println("SECOND AUDIT: ");
         currentDiffEntry = diffEntry3;
         previousDiffEntry = diffEntry2;
         calculate(currentDiffEntry, previousDiffEntry);
         System.out.println();System.out.println();System.out.println();
-
-//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
-//            previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
-//            currentDiffEntry))) {
-//            stringSetMap.get("operation").forEach(System.out::print);
-//            System.out.println("=" +
-//                stringSetMap.get("diff"));
-//            System.out.println("sameGroups=" +
-//                stringSetMap.get("same"));
-//        }
-//
-//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
-//            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
-//            currentDiffEntry))) {
-//            stringSetMap.get("operation").forEach(System.out::print);
-//            System.out.println("=" +
-//                stringSetMap.get("roles"));
-//        }
 
         System.out.println("THIRD AUDIT: ");
         currentDiffEntry = diffEntry4;
@@ -84,47 +48,12 @@ public class Main {
         calculate(currentDiffEntry, previousDiffEntry);
         System.out.println();System.out.println();System.out.println();
 
-//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
-//            previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
-//            currentDiffEntry))) {
-//            stringSetMap.get("operation").forEach(System.out::print);
-//            System.out.println("=" +
-//                stringSetMap.get("diff"));
-//            System.out.println("sameGroups=" +
-//                stringSetMap.get("same"));
-//        }
-//
-//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
-//            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
-//            currentDiffEntry))) {
-//            stringSetMap.get("operation").forEach(System.out::print);
-//            System.out.println("=" +
-//                stringSetMap.get("roles"));
-//        }
 
         System.out.println("FOURTH AUDIT: ");
         currentDiffEntry = diffEntry5;
         previousDiffEntry = diffEntry4;
         calculate(currentDiffEntry, previousDiffEntry);
         System.out.println();System.out.println();System.out.println();
-
-//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
-//            previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
-//            currentDiffEntry))) {
-//            stringSetMap.get("operation").forEach(System.out::print);
-//            System.out.println("=" +
-//                stringSetMap.get("diff"));
-//            System.out.println("sameGroups=" +
-//                stringSetMap.get("same"));
-//        }
-//
-//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
-//            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
-//            currentDiffEntry))) {
-//            stringSetMap.get("operation").forEach(System.out::print);
-//            System.out.println("=" +
-//                stringSetMap.get("roles"));
-//        }
     }
 
     private static void calculate(DiffEntry currentDiffEntry, DiffEntry previousDiffEntry) {
