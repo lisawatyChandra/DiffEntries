@@ -1,11 +1,11 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -23,9 +23,6 @@ public class Main {
         String[] snapshot5 = new String[] {"aws-imperium | aws-billingcentral-support", "general-read-only % general-write-only | admin"};
         DiffEntry diffEntry5 = new DiffEntry(snapshot5);
         diffEntry5.setTimestamp(diffEntry4.getTimestamp() + 1);
-        String[] snapshot6 = new String[] {"aws-imperium | aws-billingcentral-support", "general-read-only % general-write-only | admin"};
-//        DiffEntry diffEntry6 = new DiffEntry(snapshot6);
-
 
         System.out.println("diffEntry1=" + diffEntry1.getPosixRoles() + "\n");
         System.out.println("diffEntry2=" + diffEntry2.getPosixRoles() + "\n");
@@ -34,176 +31,118 @@ public class Main {
         System.out.println("diffEntry5=" + diffEntry5.getPosixRoles() + "\n");
 
         System.out.println("FIRST AUDIT: ");
-
         DiffEntry currentDiffEntry = diffEntry2;
         DiffEntry previousDiffEntry = diffEntry1;
-        // if currentDiffEntry has more posixGroups than previousDiffEntry,
-        // then collect addedGroups
-        calculateGroupDiffs(currentDiffEntry,
-            previousDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateGroupDiffs(currentDiffEntry,
-                previousDiffEntry).get("diff"));
-        System.out.println("sameGroups=" +
-            calculateGroupDiffs(currentDiffEntry,
-                previousDiffEntry).get("same"));
-        // if previousDiffEntry has more groups than currentDiffEntry,
-        // then collect removedGroups
-        calculateGroupDiffs(previousDiffEntry,
-            currentDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateGroupDiffs(previousDiffEntry,
-                currentDiffEntry).get("diff"));
-        System.out.println("sameGroups=" +
-            calculateGroupDiffs(previousDiffEntry,
-                currentDiffEntry).get("same"));
-        // if currentDiffEntry has more posixGroups than previousDiffEntry,
-        // then collect addedGroups
-        calculateRoleDiffs(currentDiffEntry,
-            previousDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateRoleDiffs(currentDiffEntry,
-                previousDiffEntry).get("roles"));
-        // if previousDiffEntry has more groups than currentDiffEntry,
-        // then collect removedGroups
-        calculateRoleDiffs(previousDiffEntry,
-            currentDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateRoleDiffs(previousDiffEntry,
-                currentDiffEntry).get("roles"));
-
-
+        calculate(currentDiffEntry, previousDiffEntry);
         System.out.println();System.out.println();System.out.println();
+
+//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
+//            previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
+//            currentDiffEntry))) {
+//            stringSetMap.get("operation").forEach(System.out::print);
+//            System.out.println("=" +
+//                stringSetMap.get("diff"));
+//            System.out.println("sameGroups=" +
+//                stringSetMap.get("same"));
+//        }
+//
+//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
+//            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
+//            currentDiffEntry))) {
+//            stringSetMap.get("operation").forEach(System.out::print);
+//            System.out.println("=" +
+//                stringSetMap.get("roles"));
+//        }
 
         System.out.println("SECOND AUDIT: ");
-
         currentDiffEntry = diffEntry3;
         previousDiffEntry = diffEntry2;
-        // if currentDiffEntry has more posixGroups than previousDiffEntry,
-        // then collect addedGroups
-        calculateGroupDiffs(currentDiffEntry,
-            previousDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateGroupDiffs(currentDiffEntry,
-                previousDiffEntry).get("diff"));
-        System.out.println("sameGroups=" +
-            calculateGroupDiffs(currentDiffEntry,
-                previousDiffEntry).get("same"));
-        // if previousDiffEntry has more groups than currentDiffEntry,
-        // then collect removedGroups
-        calculateGroupDiffs(previousDiffEntry,
-            currentDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateGroupDiffs(previousDiffEntry,
-                currentDiffEntry).get("diff"));
-        System.out.println("sameGroups=" +
-            calculateGroupDiffs(previousDiffEntry,
-                currentDiffEntry).get("same"));
-        // if currentDiffEntry has more posixGroups than previousDiffEntry,
-        // then collect addedGroups
-        calculateRoleDiffs(currentDiffEntry,
-            previousDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateRoleDiffs(currentDiffEntry,
-                previousDiffEntry).get("roles"));
-        // if previousDiffEntry has more groups than currentDiffEntry,
-        // then collect removedGroups
-        calculateRoleDiffs(previousDiffEntry,
-            currentDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateRoleDiffs(previousDiffEntry,
-                currentDiffEntry).get("roles"));
-
+        calculate(currentDiffEntry, previousDiffEntry);
         System.out.println();System.out.println();System.out.println();
+
+//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
+//            previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
+//            currentDiffEntry))) {
+//            stringSetMap.get("operation").forEach(System.out::print);
+//            System.out.println("=" +
+//                stringSetMap.get("diff"));
+//            System.out.println("sameGroups=" +
+//                stringSetMap.get("same"));
+//        }
+//
+//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
+//            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
+//            currentDiffEntry))) {
+//            stringSetMap.get("operation").forEach(System.out::print);
+//            System.out.println("=" +
+//                stringSetMap.get("roles"));
+//        }
 
         System.out.println("THIRD AUDIT: ");
-
         currentDiffEntry = diffEntry4;
         previousDiffEntry = diffEntry3;
-        // if currentDiffEntry has more posixGroups than previousDiffEntry,
-        // then collect addedGroups
-        calculateGroupDiffs(previousDiffEntry,
-            currentDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateGroupDiffs(currentDiffEntry,
-                previousDiffEntry).get("diff"));
-        System.out.println("sameGroups=" +
-            calculateGroupDiffs(currentDiffEntry,
-                previousDiffEntry).get("same"));
-        // if previousDiffEntry has more groups than currentDiffEntry,
-        // then collect removedGroups
-        calculateGroupDiffs(previousDiffEntry,
-            currentDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateGroupDiffs(previousDiffEntry,
-                currentDiffEntry).get("diff"));
-        System.out.println("sameGroups=" +
-            calculateGroupDiffs(previousDiffEntry,
-                currentDiffEntry).get("same"));
-        // if currentDiffEntry has more posixGroups than previousDiffEntry,
-        // then collect addedGroups
-        calculateRoleDiffs(currentDiffEntry,
-            previousDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateRoleDiffs(currentDiffEntry,
-                previousDiffEntry).get("roles"));
-        // if previousDiffEntry has more groups than currentDiffEntry,
-        // then collect removedGroups
-        calculateRoleDiffs(previousDiffEntry,
-            currentDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateRoleDiffs(previousDiffEntry,
-                currentDiffEntry).get("roles"));
-
+        calculate(currentDiffEntry, previousDiffEntry);
         System.out.println();System.out.println();System.out.println();
+
+//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
+//            previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
+//            currentDiffEntry))) {
+//            stringSetMap.get("operation").forEach(System.out::print);
+//            System.out.println("=" +
+//                stringSetMap.get("diff"));
+//            System.out.println("sameGroups=" +
+//                stringSetMap.get("same"));
+//        }
+//
+//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
+//            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
+//            currentDiffEntry))) {
+//            stringSetMap.get("operation").forEach(System.out::print);
+//            System.out.println("=" +
+//                stringSetMap.get("roles"));
+//        }
 
         System.out.println("FOURTH AUDIT: ");
-
         currentDiffEntry = diffEntry5;
         previousDiffEntry = diffEntry4;
-        // if currentDiffEntry has more posixGroups than previousDiffEntry,
-        // then collect addedGroups
-        calculateGroupDiffs(currentDiffEntry,
-            previousDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateGroupDiffs(currentDiffEntry,
-                previousDiffEntry).get("diff"));
-        System.out.println("sameGroups=" +
-            calculateGroupDiffs(currentDiffEntry,
-                previousDiffEntry).get("same"));
-        // if previousDiffEntry has more groups than currentDiffEntry,
-        // then collect removedGroups
-        calculateGroupDiffs(previousDiffEntry,
-            currentDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateGroupDiffs(previousDiffEntry,
-                currentDiffEntry).get("diff"));
-        System.out.println("sameGroups=" +
-            calculateGroupDiffs(previousDiffEntry,
-                currentDiffEntry).get("same"));System.out.println();
-        // if currentDiffEntry has more posixGroups than previousDiffEntry,
-        // then collect addedGroups
-        calculateRoleDiffs(currentDiffEntry,
-            previousDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" + calculateRoleDiffs(currentDiffEntry,
-                previousDiffEntry).get("roles"));
-        System.out.println();
-//        System.out.println("calculateRoleDiffs(currentDiffEntry,\n" +
-//            "                previousDiffEntry).get(\"rolesDiffs\")" + calculateRoleDiffs(currentDiffEntry,
-//            previousDiffEntry).get("rolesDiffs"));
-        // if previousDiffEntry has more groups than currentDiffEntry,
-        // then collect removedGroups
-        calculateRoleDiffs(previousDiffEntry,
-            currentDiffEntry).get("operation").forEach(System.out::print);
-        System.out.println("=" +
-            calculateRoleDiffs(previousDiffEntry,
-                currentDiffEntry).get("roles"));
-
+        calculate(currentDiffEntry, previousDiffEntry);
         System.out.println();System.out.println();System.out.println();
 
-//        Map<String, Set<String>> map = new HashMap<>();
-//        map.put("a", new HashSet<>(Collections.singleton("bella")));
-//        System.out.println(map);
+//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
+//            previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
+//            currentDiffEntry))) {
+//            stringSetMap.get("operation").forEach(System.out::print);
+//            System.out.println("=" +
+//                stringSetMap.get("diff"));
+//            System.out.println("sameGroups=" +
+//                stringSetMap.get("same"));
+//        }
+//
+//        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
+//            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
+//            currentDiffEntry))) {
+//            stringSetMap.get("operation").forEach(System.out::print);
+//            System.out.println("=" +
+//                stringSetMap.get("roles"));
+//        }
+    }
+
+    private static void calculate(DiffEntry currentDiffEntry, DiffEntry previousDiffEntry) {
+        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
+            previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
+            currentDiffEntry))) {
+            stringSetMap.get("operation").forEach(System.out::print);
+            System.out.println("=" +
+                stringSetMap.get("diff"));
+        }
+
+        for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
+            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
+            currentDiffEntry))) {
+            stringSetMap.get("operation").forEach(System.out::print);
+            System.out.println("=" +
+                stringSetMap.get("roles"));
+        }
     }
 
     private static Map<String, Set<String>> calculateRoleDiffs(DiffEntry diffEntryA, DiffEntry diffEntryB) {
