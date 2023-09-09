@@ -1,3 +1,4 @@
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -5,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class Main {
@@ -60,17 +62,32 @@ public class Main {
         for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
             previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
             currentDiffEntry))) {
-            stringSetMap.get("operation").forEach(System.out::print);
-            System.out.println("=" +
-                stringSetMap.get("diff"));
+            stringSetMap.get("operation").forEach(ops -> {
+                if (ops.equals("add_group") && !stringSetMap.get("diff").isEmpty()) {
+                    System.out.println("You gained access to " + stringSetMap.get("diff") + " group(s) at " + Instant.now().toString());
+                }
+
+                if (ops.equals("remove_group") && !stringSetMap.get("diff").isEmpty()) {
+                    System.out.println("You lost access to" + stringSetMap.get("diff") + " group(s) at " + Instant.now().toString());
+                }
+            });
         }
 
         for (Map<String, Set<String>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
             previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
             currentDiffEntry))) {
-            stringSetMap.get("operation").forEach(System.out::print);
-            System.out.println("=" +
-                stringSetMap.get("roles"));
+            if ((Objects.nonNull(stringSetMap.get("roles"))) && !stringSetMap.get("roles").isEmpty()) {
+                stringSetMap.get("operation").forEach((ops -> {
+                    switch (ops) {
+                        case "add_role" -> System.out.println("You gained access to " + stringSetMap.get("roles") + " role(s) at " + Instant.now().toString());
+                        case "remove_role" -> System.out.println("You lost access to " + stringSetMap.get("roles") + " role(s) at " + Instant.now().toString());
+                    }
+                }));
+            }
+
+//            stringSetMap.get("operation").forEach(System.out::print);
+//            System.out.println("=" +
+//                stringSetMap.get("roles"));
         }
     }
 
