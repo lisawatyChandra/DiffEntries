@@ -15,16 +15,16 @@ public class Main {
         DiffEntry diffEntry1 = new DiffEntry(snapshot1);
         String[] snapshot2 = new String[] {"aws-firefly | bcp-testing", "admin % read-only % write-only | admin"};
         DiffEntry diffEntry2 = new DiffEntry(snapshot2);
-        diffEntry2.setTimestamp(diffEntry1.getTimestamp() + 1);
+        diffEntry2.setTimestamp(diffEntry1.getTimestamp() + 1000);
         String[] snapshot3 = new String[] {"aws-firefly | bcp-testing", "read-only | admin"};
         DiffEntry diffEntry3 = new DiffEntry(snapshot3);
-        diffEntry3.setTimestamp(diffEntry2.getTimestamp() + 1);
+        diffEntry3.setTimestamp(diffEntry2.getTimestamp() + 1000);
         String[] snapshot4 = new String[] {"aws-imperium | aws-billingcentral-support", "general-read-only | admin"};
         DiffEntry diffEntry4 = new DiffEntry(snapshot4);
-        diffEntry4.setTimestamp(diffEntry3.getTimestamp() + 1);
-        String[] snapshot5 = new String[] {"aws-imperium | aws-billingcentral-support", "general-read-only % general-write-only | admin % testing"};
+        diffEntry4.setTimestamp(diffEntry3.getTimestamp() + 1000);
+        String[] snapshot5 = new String[] {"aws-imperium | aws-billingcentral-support", "general-read-only % general-write-only | testing"};
         DiffEntry diffEntry5 = new DiffEntry(snapshot5);
-        diffEntry5.setTimestamp(diffEntry4.getTimestamp() + 1);
+        diffEntry5.setTimestamp(diffEntry4.getTimestamp() + 1000);
 
         System.out.println("diffEntry1=" + diffEntry1.getPosixRoles() + "\n");
         System.out.println("diffEntry2=" + diffEntry2.getPosixRoles() + "\n");
@@ -59,43 +59,48 @@ public class Main {
     }
 
     private static void calculate(DiffEntry currentDiffEntry, DiffEntry previousDiffEntry) {
-        for (Map<String, Map<String, Set<String>>> stringSetMap : Arrays.asList(calculateGroupDiffs(currentDiffEntry,
-            previousDiffEntry), calculateGroupDiffs(previousDiffEntry,
-            currentDiffEntry))) {
+        for (Map<String, Map<String, Set<String>>> stringSetMap : Arrays.asList(
+            calculateGroupDiffs(currentDiffEntry, previousDiffEntry),
+            calculateGroupDiffs(previousDiffEntry, currentDiffEntry))) {
 
             stringSetMap.get("operation").forEach((key, value) -> {
+                String[] datetime = Instant.now().toString().split(("T"));
+
                 if (!stringSetMap.get("diff").isEmpty()) {
                     switch (key) {
                         case "ADD_GROUP" ->
                             stringSetMap.get("diff").keySet().forEach(posix ->
                                 System.out.println("Gained group access via " + posix +
-                                " managed by \"team\" at " + Instant.now().toString()));
+                                " managed by \"team\" on " + datetime[0]));
 
                         case "REMOVE_GROUP" ->
                             stringSetMap.get("diff").keySet().forEach(posix ->
                                 System.out.println("Lost group access via " + posix +
-                                    " managed by \"team\" at " + Instant.now().toString()));
+                                    " managed by \"team\" on " + datetime[0]));
                     }
                 }
             });
         }
 
-        for (Map<String, Map<String, Set<String>>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
-            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
-            currentDiffEntry))) {
+        for (Map<String, Map<String, Set<String>>> stringSetMap : Arrays.asList(
+            calculateRoleDiffs(currentDiffEntry, previousDiffEntry),
+            calculateRoleDiffs(previousDiffEntry, currentDiffEntry))) {
 
             if ((Objects.nonNull(stringSetMap.get("diffs")))) {
                 stringSetMap.get("operation").forEach((key, value) -> {
+                    String[] datetime = Instant.now().toString().split(("T"));
+
                     switch (key) {
                         case "ADD_ROLE" -> stringSetMap.get("diffs").forEach((k, v) ->
                             v.forEach(role -> System.out.println("Gained role access to " +
-                            role + " via " + k + " (POSIX) managed by team at " +
-                            Instant.now().toString())));
+                                role + " via " + k + " (POSIX) managed by \"team\" on " +
+                                datetime[0])));
 
-                        case "REMOVE_ROLE" -> stringSetMap.get("diffs").forEach((k, v) ->
+                        case "REMOVE_ROLE" -> stringSetMap.get("diffs").forEach((k, v) -> {
                             v.forEach(role -> System.out.println("Lost role access to " +
-                            role + " via " + k + " (POSIX) managed by team at " +
-                            Instant.now().toString())));
+                                role + " via " + k + " (POSIX) managed by \"team\" on " +
+                                datetime[0]));
+                        });
                     }
                 });
             }
@@ -128,11 +133,13 @@ public class Main {
                                            Map<String, Map<String, Set<String>>> map,
                                            Map<String, Set<String>> rolesDiffs, String posix) {
         Set<String> diffRoles = new HashSet<>();
+        String relevantPosix = null;
+
         List<List<List<String>>> posixRolesList_A = convertMapToList(diffEntryA);
         List<List<List<String>>> posixRolesList_B = convertMapToList(diffEntryB);
 
         int bound = Math.min(posixRolesList_B.size(), posixRolesList_A.size());
-        String relevantPosix = null;
+
         for (int i = 0; i < bound; i++) {
             if (posixRolesList_B.get(i).get(0).get(0).equals(posixRolesList_A.get(i).get(0).get(0))
             && posix.equals(posixRolesList_B.get(i).get(0).get(0))) {
@@ -146,7 +153,6 @@ public class Main {
 
             if (posix.equals(relevantPosix)) {
                 rolesDiffs.put(relevantPosix, diffRoles);
-//                map.put(posix, rolesDiffs);
                 map.put("diffs", rolesDiffs);
             }
         }
@@ -169,7 +175,9 @@ public class Main {
         return posixGroupAndRolesList_A;
     }
 
-    private static Map<String, Map<String, Set<String>>> calculateGroupDiffs(DiffEntry entryA, DiffEntry entryB) {
+    private static Map<String, Map<String, Set<String>>> calculateGroupDiffs(
+        DiffEntry entryA, DiffEntry entryB) {
+
         Map<String,Map<String, Set<String>>> changeInfo = new HashMap<>();
         Map<String, Set<String>> groupDifferences = new HashMap<>();
         Map<String, Set<String>> sameGroups = new HashMap<>();
