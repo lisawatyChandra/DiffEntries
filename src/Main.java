@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,13 +16,13 @@ public class Main {
         String[] snapshot2 = new String[] {"aws-firefly | bcp-testing", "admin % read-only % write-only | admin"};
         DiffEntry diffEntry2 = new DiffEntry(snapshot2);
         diffEntry2.setTimestamp(diffEntry1.getTimestamp() + 1);
-        String[] snapshot3 = new String[] {"aws-firefly | bcp-testing", "admin % read-only | admin"};
+        String[] snapshot3 = new String[] {"aws-firefly | bcp-testing", "read-only | admin"};
         DiffEntry diffEntry3 = new DiffEntry(snapshot3);
         diffEntry3.setTimestamp(diffEntry2.getTimestamp() + 1);
         String[] snapshot4 = new String[] {"aws-imperium | aws-billingcentral-support", "general-read-only | admin"};
         DiffEntry diffEntry4 = new DiffEntry(snapshot4);
         diffEntry4.setTimestamp(diffEntry3.getTimestamp() + 1);
-        String[] snapshot5 = new String[] {"aws-imperium | aws-billingcentral-support", "general-read-only % general-write-only | admin"};
+        String[] snapshot5 = new String[] {"aws-imperium | aws-billingcentral-support", "general-read-only % general-write-only | admin % testing"};
         DiffEntry diffEntry5 = new DiffEntry(snapshot5);
         diffEntry5.setTimestamp(diffEntry4.getTimestamp() + 1);
 
@@ -66,16 +64,18 @@ public class Main {
             currentDiffEntry))) {
 
             stringSetMap.get("operation").forEach((key, value) -> {
-                if (key.equals("ADD_GROUP") && !stringSetMap.get("diff").isEmpty()) {
-                    System.out.println("Gained group access via " + stringSetMap.get("diff").keySet() +
-                        " managed by \"team\" with " +   stringSetMap.get("diff").values() +
-                        " role(s) at " + Instant.now().toString());
-                }
+                if (!stringSetMap.get("diff").isEmpty()) {
+                    switch (key) {
+                        case "ADD_GROUP" ->
+                            stringSetMap.get("diff").keySet().forEach(posix ->
+                                System.out.println("Gained group access via " + posix +
+                                " managed by \"team\" at " + Instant.now().toString()));
 
-                if (key.equals("REMOVE_GROUP") && !stringSetMap.get("diff").isEmpty()) {
-                    System.out.println("Lost group access via " + stringSetMap.get("diff").keySet() +
-                        " managed by \"team\" with " + stringSetMap.get("diff").values() +
-                        " role(s) at " + Instant.now().toString());
+                        case "REMOVE_GROUP" ->
+                            stringSetMap.get("diff").keySet().forEach(posix ->
+                                System.out.println("Lost group access via " + posix +
+                                    " managed by \"team\" at " + Instant.now().toString()));
+                    }
                 }
             });
         }
@@ -88,13 +88,14 @@ public class Main {
                 stringSetMap.get("operation").forEach((key, value) -> {
                     switch (key) {
                         case "ADD_ROLE" -> stringSetMap.get("diffs").forEach((k, v) ->
-                            System.out.println("Gained role access to " +
-                            v + " via " + k + " (POSIX) managed by team at " +
-                            Instant.now().toString()));
+                            v.forEach(role -> System.out.println("Gained role access to " +
+                            role + " via " + k + " (POSIX) managed by team at " +
+                            Instant.now().toString())));
+
                         case "REMOVE_ROLE" -> stringSetMap.get("diffs").forEach((k, v) ->
-                            System.out.println("Lost role access to " +
-                            v + " via " + k + " (POSIX) managed by team at " +
-                            Instant.now().toString()));
+                            v.forEach(role -> System.out.println("Lost role access to " +
+                            role + " via " + k + " (POSIX) managed by team at " +
+                            Instant.now().toString())));
                     }
                 });
             }
@@ -228,4 +229,3 @@ public class Main {
             .allMatch(e -> e.getValue().equals(second.get(e.getKey())));
     }
 }
->>>>>>> 1eeea04 (Add logic for calculating differences in roles, still faulty but getting closer)
