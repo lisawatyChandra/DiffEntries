@@ -96,4 +96,10 @@ public class DiffEntry {
     public int hashCode() {
         return Objects.hash(getPosixRoles(), getTimestamp());
     }
+
+    @Override
+    public String toString() {
+        return "timestamp=" + getTimestamp() + "\n" +
+            "posixGroupToRoles=" + getPosixRoles();
+    }
 }

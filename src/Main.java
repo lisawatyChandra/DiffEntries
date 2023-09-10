@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class Main {
@@ -73,66 +74,41 @@ public class Main {
 
                 if (key.equals("REMOVE_GROUP") && !stringSetMap.get("diff").isEmpty()) {
                     System.out.println("Lost group access via " + stringSetMap.get("diff").keySet() +
-                        " manageed by \"team\" with " + stringSetMap.get("diff").values() +
+                        " managed by \"team\" with " + stringSetMap.get("diff").values() +
                         " role(s) at " + Instant.now().toString());
                 }
             });
         }
 
-
-        System.out.println("\n\nArrays.asList(calculateRoleDiffs(currentDiffEntry,\n" +
-            "            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,\n" +
-            "            currentDiffEntry))=" + Arrays.asList(calculateRoleDiffs(currentDiffEntry,
+        for (Map<String, Map<String, Set<String>>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
             previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
-            currentDiffEntry)) + "\n");
-//        for (Map<String, Map<String, Set<String>>> stringSetMap : Arrays.asList(calculateRoleDiffs(currentDiffEntry,
-//            previousDiffEntry), calculateRoleDiffs(previousDiffEntry,
-//            currentDiffEntry))) {
+            currentDiffEntry))) {
 
-//            System.out.println("stringSetMap.get(\"DIFF_ROLE\").get(\"diff\")=" + stringSetMap.get("DIFF_ROLE").get("diff"));
-//            if ((Objects.nonNull(stringSetMap.get("DIFF_ROLE"))) && !stringSetMap.get("DIFF_ROLE").get("diff").isEmpty()) {
-//                stringSetMap.get("operation").forEach((key, value) -> {
-//                    System.out.println("key=" + key + ", value=" + value);
-//                    switch (key) {
-//                        // Gained role access to general-write-only via aws-imperium (POSIX) managed by team.
-//                        case "ADD_ROLE" ->
-//                            System.out.println("Gained role access to " +
-//                                stringSetMap.get("DIFF_ROLE").get("diff") + " at " +
-//                                Instant.now().toString());
-//                        // Lost role access to write-only via aws-firefly (POSIX) managed by team.
-//                        case "REMOVE_ROLE" ->
-//                            System.out.println("Lost role access to " +
-//                                stringSetMap.get("DIFF_ROLE").get("diff") + " at " +
-//                                Instant.now().toString());
-//                    }
-//                });
-//            }
-//        }
+            if ((Objects.nonNull(stringSetMap.get("diffs")))) {
+                stringSetMap.get("operation").forEach((key, value) -> {
+                    switch (key) {
+                        case "ADD_ROLE" -> stringSetMap.get("diffs").forEach((k, v) ->
+                            System.out.println("Gained role access to " +
+                            v + " via " + k + " (POSIX) managed by team at " +
+                            Instant.now().toString()));
+                        case "REMOVE_ROLE" -> stringSetMap.get("diffs").forEach((k, v) ->
+                            System.out.println("Lost role access to " +
+                            v + " via " + k + " (POSIX) managed by team at " +
+                            Instant.now().toString()));
+                    }
+                });
+            }
+        }
     }
 
     private static Map<String, Map<String, Set<String>>> calculateRoleDiffs(DiffEntry diffEntryA, DiffEntry diffEntryB) {
         Map<String, Map<String, Set<String>>> map = new HashMap<>();
         Map<String, Set<String>> sameKeys = new HashMap<>();
         sameKeys.put("SAME_GROUP", calculateGroupDiffs(diffEntryA, diffEntryB).get("same").keySet());
-        sameKeys.put("DIFF_GROUP_REMOVED", calculateGroupDiffs(diffEntryB, diffEntryA).get("diff").keySet());
-        sameKeys.put("DIFF_GROUP_ADDED", calculateGroupDiffs(diffEntryA, diffEntryB).get("diff").keySet());
-
-        System.out.println();
 
         Map<String,Set<String>> rolesDiffs = new HashMap<>();
-//        System.out.println("sameKeys.get(\"SAME_GROUP\")=" + sameKeys.get("SAME_GROUP"));
         for (String posix : sameKeys.get("SAME_GROUP")) {
             determineDiffRoles(diffEntryA, diffEntryB, map, rolesDiffs, posix);
-        }
-
-//        System.out.println("sameKeys.get(\"DIFF_GROUP_REMOVED\")=" + sameKeys.get("DIFF_GROUP_REMOVED"));
-        for (String posix : sameKeys.get("DIFF_GROUP_REMOVED")) {
-//            determineDiffRoles(diffEntryB, diffEntryA, map, rolesDiffs, posix);
-        }
-
-//        System.out.println("sameKeys.get(\"DIFF_GROUP_ADDED\")=" + sameKeys.get("DIFF_GROUP_ADDED"));
-        for (String posix : sameKeys.get("DIFF_GROUP_ADDED")) {
-//            determineDiffRoles(diffEntryA, diffEntryB, map, rolesDiffs, posix);
         }
 
         Map<String, Set<String>> operation = new HashMap<>();
@@ -144,7 +120,6 @@ public class Main {
             map.put("operation", operation);
         }
 
-//        System.out.println("map=" + map);
         return map;
     }
 
@@ -152,30 +127,26 @@ public class Main {
                                            Map<String, Map<String, Set<String>>> map,
                                            Map<String, Set<String>> rolesDiffs, String posix) {
         Set<String> diffRoles = new HashSet<>();
-        List<List<List<String>>> posixRolesList_A = convertMapToList(diffEntryA);;
+        List<List<List<String>>> posixRolesList_A = convertMapToList(diffEntryA);
         List<List<List<String>>> posixRolesList_B = convertMapToList(diffEntryB);
-        System.out.println("posix=" + posix);
-        System.out.println(posixRolesList_A);
-        System.out.println(posixRolesList_B);
 
         int bound = Math.min(posixRolesList_B.size(), posixRolesList_A.size());
+        String relevantPosix = null;
         for (int i = 0; i < bound; i++) {
             if (posixRolesList_B.get(i).get(0).get(0).equals(posixRolesList_A.get(i).get(0).get(0))
             && posix.equals(posixRolesList_B.get(i).get(0).get(0))) {
                 for (String role : posixRolesList_A.get(i).get(1)) {
                     if (!posixRolesList_B.get(i).get(1).contains(role)) {
+                        relevantPosix = posixRolesList_A.get(i).get(0).get(0);
                         diffRoles.add(role);
                     }
                 }
             }
 
-            if (!diffRoles.isEmpty() && posix.equals(posixRolesList_A.get(i).get(0).get(0))) {
-                rolesDiffs.put("diff", diffRoles);
-            }
-            System.out.println("\t\t\t\tposixRolesListA.get(i).get(1)=" + posixRolesList_A.get(i).get(1) + " rolesDiffs=" + rolesDiffs);
-            System.out.println("\t\t\t\tposixRolesListB.get(i).get(1)=" + posixRolesList_B.get(i).get(1) + " rolesDiffs=" + rolesDiffs);
-            if (posix.equals(posixRolesList_B.get(i).get(0).get(0))) {
-                map.put(posix, rolesDiffs);
+            if (posix.equals(relevantPosix)) {
+                rolesDiffs.put(relevantPosix, diffRoles);
+//                map.put(posix, rolesDiffs);
+                map.put("diffs", rolesDiffs);
             }
         }
     }
